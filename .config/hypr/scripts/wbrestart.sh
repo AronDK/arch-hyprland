@@ -1,7 +1,6 @@
 #!/bin/zsh
 
-killall -9 swaync
-killall -9 waybar
-
-swaync &
-waybar &
+pkill waybar
+waybar >/dev/null 2>&1 &
+swaync-client -R
+swaync-client -rs

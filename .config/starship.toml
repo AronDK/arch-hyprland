@@ -1,0 +1,40 @@
+add_newline = false
+command_timeout = 1000
+palette = "hypr_dark"
+
+format = "$directory$git_branch$git_status$cmd_duration$character"
+
+[palettes.hypr_dark]
+blue = "#79a7d8"
+navy = "#4b78a8"
+muted = "#788493"
+text = "#d8dee9"
+green = "#8fbc8f"
+red = "#bf616a"
+yellow = "#d7ba7d"
+
+[directory]
+style = "bold blue"
+format = "[$path]($style) "
+truncation_length = 1
+truncate_to_repo = false
+read_only = " 󰌾"
+
+[git_branch]
+symbol = " "
+style = "navy"
+format = " on [$symbol$branch]($style)"
+
+[git_status]
+style = "yellow"
+format = "[$all_status$ahead_behind]($style)"
+
+[cmd_duration]
+min_time = 1500
+style = "muted"
+format = " [took $duration]($style) "
+
+[character]
+success_symbol = "[❯](bold green) "
+error_symbol = "[❯](bold red) "
+vimcmd_symbol = "[❮](bold blue) "

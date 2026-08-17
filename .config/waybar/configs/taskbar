@@ -4,7 +4,6 @@
 {
 "include": [
   "$HOME/.config/waybar/Modules",
-  "$HOME/.config/waybar/ModulesWorkspaces",
   "$HOME/.config/waybar/ModulesCustom",
   "$HOME/.config/waybar/ModulesGroups",
   "$HOME/.config/waybar/UserModules",
@@ -25,9 +24,6 @@
 	//"idle_inhibitor",
 	//"custom/separator#blank",
 	"tray",
-        "custom/separator#line",	
-        "custom/separator#blank",	
-        "hyprland/workspaces#alpha",
 	],
 
 "modules-center": [
@@ -45,4 +41,3 @@
 	"custom/power",
 	],
 }
-

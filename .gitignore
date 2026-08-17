@@ -1,0 +1,5 @@
+.config/hypr/current_wallpaper
+.config/waybar/config
+.config/waybar/style.css
+__pycache__/
+*.pyc

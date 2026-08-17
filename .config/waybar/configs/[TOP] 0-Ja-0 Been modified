@@ -4,7 +4,6 @@
 {
 "include": [
   "$HOME/.config/waybar/Modules",
-  "$HOME/.config/waybar/ModulesWorkspaces",
   "$HOME/.config/waybar/ModulesCustom",
   "$HOME/.config/waybar/ModulesGroups",
   "$HOME/.config/waybar/UserModules",
@@ -29,8 +28,6 @@
 
 "modules-center": [
 	"group/app_drawer",
-	"custom/separator#dot-line",
-	"hyprland/workspaces#kanji",
 	"custom/separator#dot-line",
 	"group/notify",	
 	],

@@ -1,2 +1,2 @@
-!#/bin/zsh
-grim -g "$(slurp)" &
+#!/bin/zsh
+grim -g "$(slurp)" - | swappy -f -
