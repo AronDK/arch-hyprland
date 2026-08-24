@@ -1,0 +1,74 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 34,
+  "spacing": 6,
+  "margin-top": 7,
+  "margin-left": 10,
+  "margin-right": 10,
+  "modules-left": ["hyprland/workspaces", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right": ["network", "bluetooth", "pulseaudio", "cpu", "memory", "battery", "custom/swaync", "custom/lock"],
+  "hyprland/workspaces": {
+    "disable-scroll": false,
+    "all-outputs": false,
+    "format": "{icon}",
+    "format-icons": {"active": "●", "default": "○", "urgent": "◆"}
+  },
+  "hyprland/window": {"max-length": 55, "separate-outputs": true},
+  "clock": {"format": "{:%a %d %b  %H:%M}", "tooltip-format": "<tt>{calendar}</tt>"},
+  "tray": {"icon-size": 17, "spacing": 8},
+  "network": {
+    "format-wifi": "󰤨  {signalStrength}%",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰤭",
+    "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+    "tooltip": "Wi-Fi controls",
+    "on-click": "~/.local/bin/waybar-control-menu wifi"
+  },
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-connected": "󰂱 {num_connections}",
+    "tooltip": "Bluetooth controls",
+    "on-click": "~/.local/bin/waybar-control-menu bluetooth"
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟",
+    "format-icons": {"headphone": "󰋋", "default": ["󰕿", "󰖀", "󰕾"]},
+    "tooltip": "Audio controls · scroll to adjust volume · right-click to mute",
+    "on-click": "~/.local/bin/waybar-control-menu audio",
+    "on-click-right": "pamixer -t"
+  },
+  "cpu": {"format": "󰻠 {usage}%", "interval": 5},
+  "memory": {"format": "󰍛 {percentage}%", "interval": 5},
+  "battery": {
+    "states": {"warning": 25, "critical": 10},
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥",
+    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+  },
+  "custom/swaync": {
+    "format": "{} {icon}",
+    "format-icons": {
+      "notification": "<sup></sup>",
+      "none": "",
+      "dnd-notification": "<sup></sup>",
+      "dnd-none": "",
+      "inhibited-notification": "<sup></sup>",
+      "inhibited-none": "",
+      "dnd-inhibited-notification": "<sup></sup>",
+      "dnd-inhibited-none": ""
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "~/.local/bin/waybar-notification-center",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true,
+    "tooltip": "Notifications · right-click for Do Not Disturb"
+  },
+  "custom/lock": {"format": "󰌾", "tooltip": "Lock session", "on-click": "hyprlock"}
+}

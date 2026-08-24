@@ -1,0 +1,69 @@
+#waybar-control-overlay,
+#control-root { background-color: transparent; }
+
+#control-card {
+  background-color: @surface_container;
+  color: @on_surface;
+  border: 1px solid @outline_variant;
+  border-radius: 28px;
+  padding: 8px;
+  box-shadow: none;
+  font-family: "Noto Sans", "JetBrainsMono Nerd Font Propo", sans-serif;
+}
+
+.control-header { padding: 12px 12px 10px; }
+.control-header-icon { color: @primary; font-family: "JetBrainsMono Nerd Font Propo"; font-size: 24px; min-width: 32px; }
+.control-title { color: @on_surface; font-size: 18px; font-weight: 700; }
+.control-subtitle, .row-supporting { color: @on_surface_variant; font-size: 12px; font-weight: 400; }
+
+.control-icon-button,
+.control-icon-button:hover,
+.control-icon-button:focus {
+  color: @on_surface_variant;
+  background-color: transparent;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+}
+.control-icon-button:hover, .control-icon-button:focus { color: @on_secondary_container; background-color: @secondary_container; }
+.control-scroller, .control-scroller viewport { background-color: transparent; border: none; }
+.control-content { padding: 0 4px 4px; }
+
+.control-toggle-row {
+  background-color: @surface_container_high;
+  border-radius: 20px;
+  padding: 12px 16px;
+  margin: 0 0 8px;
+  min-height: 48px;
+}
+.control-toggle-row switch { background-color: @surface_container_highest; border: 2px solid @outline; border-radius: 9999px; box-shadow: none; min-width: 48px; min-height: 28px; padding: 2px; }
+.control-toggle-row switch:checked { background-color: @primary; border-color: @primary; }
+.control-toggle-row switch slider { background-color: @outline; border-radius: 9999px; box-shadow: none; min-width: 20px; min-height: 20px; }
+.control-toggle-row switch:checked slider { background-color: @on_primary; }
+
+.control-section { margin: 4px 0 8px; }
+.section-title { color: @primary; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 8px 14px 5px; }
+.control-row { color: @on_surface; background-color: transparent; border: none; border-radius: 16px; box-shadow: none; min-height: 56px; padding: 8px 12px; }
+.control-row:hover, .control-row:focus { color: @on_secondary_container; background-color: @secondary_container; border: none; box-shadow: inset 0 0 0 2px @primary; }
+.control-row.selected { color: @on_primary_container; background-color: @primary_container; }
+.control-row.danger { color: @on_error_container; }
+.control-row.danger:hover, .control-row.danger:focus { color: @on_error_container; background-color: @error_container; box-shadow: inset 0 0 0 2px @error; }
+.row-icon { color: @primary; font-family: "JetBrainsMono Nerd Font Propo"; font-size: 18px; min-width: 28px; }
+.row-title { color: inherit; font-size: 14px; font-weight: 600; }
+.row-trailing { color: @on_surface_variant; font-size: 12px; }
+
+.control-banner { color: @on_tertiary_container; background-color: @tertiary_container; border-radius: 16px; padding: 12px; margin: 0 0 8px; }
+.control-banner.error { color: @on_error_container; background-color: @error_container; }
+.control-footer { border-top: 1px solid @outline_variant; padding: 10px 6px 4px; margin-top: 4px; }
+.control-footer-button, .control-filled-button { color: @primary; background-color: transparent; border: none; border-radius: 9999px; box-shadow: none; min-height: 40px; padding: 0 16px; font-weight: 700; }
+.control-footer-button:hover, .control-footer-button:focus { background-color: @secondary_container; color: @on_secondary_container; box-shadow: inset 0 0 0 2px @primary; }
+.control-footer-button.filled, .control-filled-button { color: @on_primary; background-color: @primary; }
+.control-footer-button.filled:hover, .control-footer-button.filled:focus, .control-filled-button:hover, .control-filled-button:focus { color: @on_primary_container; background-color: @primary_container; box-shadow: inset 0 0 0 2px @primary; }
+
+.password-content { padding: 4px 12px 14px; }
+.password-content entry { color: @on_surface; caret-color: @primary; background-color: @surface_container_highest; border: 1px solid @outline; border-radius: 8px; box-shadow: none; min-height: 40px; padding: 0 12px; }
+.password-content entry:focus { border: 2px solid @primary; }
+scrollbar slider { background-color: @outline; border-radius: 9999px; min-width: 4px; }

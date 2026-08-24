@@ -1,6 +1,3 @@
-/* ----------- 💫 https://github.com/JaKooLit 💫 -------- */
-/* swaync colors - wallust from waybar.css */
-
 @import '../../.config/waybar/colors.css';
-@import 'themes/control_center.css';
-@import 'themes/notifications.css';
+@import 'themes/material3.css';
+@import 'themes/motion-origin.css';

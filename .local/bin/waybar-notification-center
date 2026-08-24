@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/waybar-notification-center.lock"
+flock -n 9 || exit 0
+
+dbus_name=org.erikreider.swaync.cc
+dbus_path=/org/erikreider/swaync/cc
+dbus_interface=org.erikreider.swaync.cc
+motion_file="$HOME/.config/swaync/themes/motion-origin.css"
+config_file="$HOME/.config/swaync/config.json"
+
+visibility=$(gdbus call --session --dest "$dbus_name" --object-path "$dbus_path" \
+    --method "$dbus_interface.GetVisibility" 2>/dev/null || printf '(false,)')
+if [[ $visibility == *true* ]]; then
+    swaync-client --close-panel
+    exit 0
+fi
+
+read -r pointer_x pointer_y < <(
+    hyprctl -j cursorpos | jq -r '[.x // 0, .y // 0] | @tsv'
+)
+monitor=$(hyprctl -j monitors | jq -c \
+    --argjson x "$pointer_x" --argjson y "$pointer_y" '
+      [.[] | select(
+        $x >= .x and $x < (.x + .width / .scale) and
+        $y >= .y and $y < (.y + .height / .scale)
+      )][0] // [.[] | select(.focused)][0]
+    ')
+[[ -n $monitor && $monitor != null ]] || exec swaync-client --open-panel
+
+monitor_name=$(jq -r '.name' <<<"$monitor")
+monitor_x=$(jq -r '.x' <<<"$monitor")
+monitor_y=$(jq -r '.y' <<<"$monitor")
+monitor_width=$(jq -r '(.width / .scale) | floor' <<<"$monitor")
+panel_width=$(jq -r '."control-center-width" // 408' "$config_file")
+margin_top=$(jq -r '."control-center-margin-top" // 0' "$config_file")
+margin_left=$(jq -r '."control-center-margin-left" // 0' "$config_file")
+margin_right=$(jq -r '."control-center-margin-right" // 0' "$config_file")
+position_x=$(jq -r '."control-center-positionX" // .positionX // "right"' "$config_file")
+[[ $position_x != none ]] || position_x=$(jq -r '.positionX // "right"' "$config_file")
+
+case $position_x in
+    left) panel_x=$((monitor_x + margin_left)) ;;
+    center) panel_x=$((monitor_x + (monitor_width - panel_width) / 2)) ;;
+    *) panel_x=$((monitor_x + monitor_width - margin_right - panel_width)) ;;
+esac
+panel_y=$((monitor_y + margin_top))
+origin_x=$((pointer_x - panel_x))
+origin_y=$((pointer_y - panel_y))
+((origin_x < 0)) && origin_x=0
+((origin_x > panel_width)) && origin_x=$panel_width
+((origin_y < -96)) && origin_y=-96
+((origin_y > 48)) && origin_y=48
+
+temporary_file=$(mktemp "$motion_file.XXXXXX")
+printf '%s\n' \
+    '/* Generated from the Waybar notification icon position. */' \
+    'blankwindow.open .control-center {' \
+    "  transform-origin: ${origin_x}px ${origin_y}px;" \
+    '}' >"$temporary_file"
+mv -f -- "$temporary_file" "$motion_file"
+
+swaync-client --reload-css >/dev/null
+swaync-client --change-cc-monitor "$monitor_name" >/dev/null 2>&1 || true
+swaync-client --open-panel

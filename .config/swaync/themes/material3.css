@@ -1,0 +1,388 @@
+/* GTK CSS has no custom length properties. The radii below use the canonical
+ * Material 3 values directly: medium 12px, large 16px, large-increased 20px,
+ * extra-large 28px, and full 9999px. */
+
+* {
+  color: @on_surface;
+  font-family: "Noto Sans", "JetBrainsMono Nerd Font Propo", sans-serif;
+  font-size: 14px;
+  text-shadow: none;
+  transition: 200ms;
+}
+
+blankwindow,
+notificationwindow,
+.blank-window,
+.floating-notifications {
+  background: transparent;
+}
+
+@keyframes md3-expand-from-trigger {
+  from {
+    opacity: 0;
+    transform: scale(0.07, 0.025);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+}
+
+/* The launcher supplies a transform origin matching the clicked Waybar icon. */
+blankwindow.open .control-center {
+  animation-name: md3-expand-from-trigger;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1);
+  animation-iteration-count: 1;
+}
+
+/* Control center surface and top-level hierarchy */
+.control-center {
+  background: @surface_container;
+  border: 1px solid @outline_variant;
+  border-radius: 28px;
+  box-shadow: none;
+  padding: 12px;
+}
+
+.control-center-list {
+  background: transparent;
+}
+
+.widget-title {
+  color: @on_surface;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 2px 4px 8px;
+  padding: 4px 8px;
+}
+
+.widget-title button {
+  color: @primary;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.widget-title button:hover,
+.widget-title button:focus {
+  color: @on_secondary_container;
+  background: @secondary_container;
+  box-shadow: inset 0 0 0 2px @primary;
+}
+
+/* DND uses a Material switch on a tonal card. */
+.widget-dnd {
+  background: @surface_container_high;
+  border-radius: 20px;
+  margin: 0 4px 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.widget-dnd > switch {
+  background: @surface_container_highest;
+  border: 2px solid @outline;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-width: 48px;
+  min-height: 28px;
+  padding: 2px;
+}
+
+.widget-dnd > switch:checked {
+  background: @primary;
+  border-color: @primary;
+}
+
+.widget-dnd > switch slider {
+  background: @outline;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+.widget-dnd > switch:checked slider {
+  background: @on_primary;
+}
+
+/* Quick actions are filled-tonal buttons with readable labels. */
+.widget-buttons-grid {
+  background: transparent;
+  margin: 0 0 8px;
+  padding: 0;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  color: @on_secondary_container;
+  background: @secondary_container;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-height: 48px;
+  margin: 4px;
+  padding: 0 14px;
+  font-weight: 700;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover,
+.widget-buttons-grid > flowbox > flowboxchild > button:focus {
+  color: @on_primary_container;
+  background: @primary_container;
+  box-shadow: inset 0 0 0 2px @primary;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle:checked,
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle.active {
+  color: @on_primary;
+  background: @primary;
+}
+
+/* Media is a distinct high-tonal card. */
+.widget-mpris {
+  color: @on_surface;
+  background: @surface_container_high;
+  border-radius: 20px;
+  margin: 0 4px 12px;
+  padding: 6px;
+}
+
+.widget-mpris-player {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  box-shadow: none;
+  padding: 8px;
+}
+
+.widget-mpris-album-art {
+  border-radius: 12px;
+  margin: 4px 10px 4px 4px;
+}
+
+.widget-mpris-title {
+  color: @on_surface;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.widget-mpris-subtitle {
+  color: @on_surface_variant;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.widget-mpris button {
+  color: @on_surface_variant;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.widget-mpris button:hover,
+.widget-mpris button:focus {
+  color: @on_secondary_container;
+  background: @secondary_container;
+}
+
+/* Notification cards inside the control center. */
+.notification-row {
+  background: transparent;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+.control-center .notification-row .notification-background {
+  background: transparent;
+  margin: 4px;
+  padding: 0;
+}
+
+.control-center .notification-row .notification-background .notification {
+  color: @on_surface;
+  background: @surface_container_high;
+  border: 1px solid @outline_variant;
+  border-radius: 16px;
+  box-shadow: none;
+  padding: 0;
+}
+
+.control-center .notification-row .notification-background .notification.critical {
+  color: @on_error_container;
+  background: @error_container;
+  border-color: @error;
+}
+
+.notification-default-action {
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  box-shadow: none;
+  padding: 10px;
+}
+
+.notification-default-action:hover,
+.notification-default-action:focus {
+  background: @surface_container_highest;
+}
+
+.notification-content {
+  background: transparent;
+  padding: 0;
+}
+
+.notification-content .image {
+  border-radius: 12px;
+  margin: 4px 12px 4px 4px;
+  -gtk-icon-size: 48px;
+}
+
+.notification-content .app-icon {
+  -gtk-icon-size: 20px;
+  margin: 4px;
+}
+
+.notification-content .summary {
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.notification-content .time {
+  color: @on_surface_variant;
+  font-size: 11px;
+  font-weight: 500;
+  margin-right: 28px;
+}
+
+.notification-content .body {
+  color: @on_surface_variant;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.notification-content .body-image {
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.notification-background .close-button {
+  color: @on_surface_variant;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-width: 32px;
+  min-height: 32px;
+  margin: 6px;
+  padding: 0;
+}
+
+.notification-background .close-button:hover,
+.notification-background .close-button:focus {
+  color: @on_secondary_container;
+  background: @secondary_container;
+}
+
+.notification-action {
+  color: @primary;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-height: 40px;
+  margin: 4px;
+  padding: 0 16px;
+  font-weight: 700;
+}
+
+.notification-action:hover,
+.notification-action:focus {
+  color: @on_secondary_container;
+  background: @secondary_container;
+}
+
+progressbar trough {
+  background: @surface_container_highest;
+  border-radius: 9999px;
+  min-height: 4px;
+}
+
+progressbar progress {
+  background: @primary;
+  border-radius: 9999px;
+  min-height: 4px;
+}
+
+.notification.critical progressbar progress {
+  background: @error;
+}
+
+/* Group controls use low-emphasis icon buttons. */
+.notification-group {
+  margin: 2px 4px;
+}
+
+.notification-group-headers {
+  color: @on_surface;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.notification-group-icon {
+  color: @primary;
+}
+
+.notification-group-collapse-button,
+.notification-group-close-all-button {
+  color: @on_surface_variant;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: none;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.notification-group-collapse-button:hover,
+.notification-group-collapse-button:focus,
+.notification-group-close-all-button:hover,
+.notification-group-close-all-button:focus {
+  color: @on_secondary_container;
+  background: @secondary_container;
+}
+
+/* Floating notifications use the same card language at a higher tonal level. */
+.floating-notifications .notification-row .notification-background {
+  background: transparent;
+  margin: 12px;
+  padding: 0;
+}
+
+.floating-notifications .notification-row .notification-background .notification {
+  color: @on_surface;
+  background: @surface_container_high;
+  border: 1px solid @outline_variant;
+  border-radius: 20px;
+  box-shadow: none;
+  padding: 0;
+}
+
+.floating-notifications .notification-row .notification-background .notification.critical {
+  color: @on_error_container;
+  background: @error_container;
+  border-color: @error;
+}

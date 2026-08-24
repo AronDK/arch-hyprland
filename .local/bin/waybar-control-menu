@@ -1,0 +1,313 @@
+#!/usr/bin/env bash
+set -u
+
+exec 8>"${XDG_RUNTIME_DIR:-/tmp}/waybar-control-menu.lock"
+flock -n 8 || exit 0
+
+read -r popup_pointer_x popup_pointer_y < <(
+    hyprctl -j cursorpos 2>/dev/null | jq -r '[.x // 0, .y // 0] | @tsv'
+)
+popup_position_args=(--pointer-x="$popup_pointer_x" --pointer-y="$popup_pointer_y")
+
+menu_index() {
+    local prompt=$1
+    ~/.local/bin/waybar-popup-menu "${popup_position_args[@]}" --title "$prompt"
+}
+
+menu_action() {
+    ~/.local/bin/waybar-popup-menu "${popup_position_args[@]}"
+}
+
+password_prompt() {
+    local prompt=$1
+    ~/.local/bin/waybar-popup-menu "${popup_position_args[@]}" --title "$prompt" --password
+}
+
+notice() {
+    notify-send -a 'Waybar controls' "$1" "${2:-}"
+}
+
+append_row() {
+    local rows=$1 action=$2 icon=$3 title=$4 subtitle=$5 trailing=$6
+    local selected=${7:-false} disabled=${8:-false} danger=${9:-false}
+    jq -c \
+        --arg action "$action" \
+        --arg icon "$icon" \
+        --arg title "$title" \
+        --arg subtitle "$subtitle" \
+        --arg trailing "$trailing" \
+        --argjson selected "$selected" \
+        --argjson disabled "$disabled" \
+        --argjson danger "$danger" \
+        '. + [{action: $action, icon: $icon, title: $title, subtitle: $subtitle,
+               trailing: $trailing, selected: $selected, disabled: $disabled,
+               danger: $danger}]' <<<"$rows"
+}
+
+encode_value() {
+    printf '%s' "$1" | base64 -w0
+}
+
+decode_value() {
+    printf '%s' "$1" | base64 -d
+}
+
+short_error() {
+    local message=${1//$'\n'/ }
+    printf '%s' "${message:0:180}"
+}
+
+wifi_menu() {
+    local banner=${1:-}
+    local state device current choice ssid error password model rows
+    local active signal security secure subtitle icon encoded
+
+    state=$(nmcli -g WIFI general 2>/dev/null || printf disabled)
+    rows='[]'
+    current=''
+    device=''
+    if [[ $state == enabled ]]; then
+        device=$(nmcli --terse --escape no --get-values DEVICE,TYPE,STATE device status \
+            | awk -F: '$2 == "wifi" {print $1; exit}')
+        [[ -n $device ]] && current=$(nmcli --terse --escape no --get-values GENERAL.CONNECTION \
+            device show "$device" 2>/dev/null || true)
+        declare -A seen=()
+        while IFS=$'\x1f' read -r active ssid signal security; do
+            [[ -n $ssid && -z ${seen[$ssid]+set} ]] || continue
+            seen[$ssid]=1
+            signal=${signal:-0}
+            if (( signal >= 80 )); then icon='󰤨'
+            elif (( signal >= 60 )); then icon='󰤥'
+            elif (( signal >= 40 )); then icon='󰤢'
+            elif (( signal >= 20 )); then icon='󰤟'
+            else icon='󰤯'; fi
+            if [[ $security == '--' || -z $security ]]; then
+                secure=false
+                subtitle="$signal% signal • Open network"
+            elif [[ $security == OWE ]]; then
+                secure=false
+                subtitle="$signal% signal • Enhanced open"
+            else
+                secure=true
+                subtitle="$signal% signal • Secured"
+            fi
+            encoded=$(encode_value "$ssid")
+            if [[ $active == yes || $active == '*' ]]; then
+                rows=$(append_row "$rows" disconnect "$icon" "$ssid" "Connected • $subtitle" 'Disconnect' true)
+            else
+                rows=$(append_row "$rows" "wifi-connect:$encoded:$secure" "$icon" "$ssid" "$subtitle" 'Connect')
+            fi
+        done < <(nmcli --mode multiline --escape no \
+            --fields IN-USE,SSID,SIGNAL,SECURITY device wifi list --rescan no 2>/dev/null \
+            | awk '
+                function value(line) {
+                    sub(/^[^:]*:[[:space:]]*/, "", line)
+                    sub(/[[:space:]]+$/, "", line)
+                    return line
+                }
+                /^IN-USE:/ { active=value($0) }
+                /^SSID:/ { ssid=value($0) }
+                /^SIGNAL:/ { signal=value($0) }
+                /^SECURITY:/ {
+                    security=value($0)
+                    printf "%s%c%s%c%s%c%s\n", active, 31, ssid, 31, signal, 31, security
+                }
+            ')
+        if [[ $rows == '[]' ]]; then
+            rows=$(append_row "$rows" '' '󰤭' 'No networks found' 'Try scanning again' '' false true)
+        fi
+    fi
+
+    model=$(jq -cn \
+        --arg subtitle "${current/--/Not connected}" \
+        --arg banner "$banner" \
+        --argjson active "$([[ $state == enabled ]] && printf true || printf false)" \
+        --argjson rows "$rows" \
+        '{title: "Wi-Fi", icon: "󰖩", subtitle: $subtitle,
+          toggle: {title: "Wi-Fi", subtitle: (if $active then "Wireless networking is on" else "Wireless networking is off" end),
+                   icon: "󰖩", active: $active, action: "toggle-wifi"},
+          banner: (if $banner == "" then null else {tone: "error", icon: "󰅚", text: $banner} end),
+          sections: (if $active then [{title: "AVAILABLE NETWORKS", rows: $rows}] else [] end),
+          footer: (if $active then [{title: "Scan again", action: "rescan", filled: false}] else [] end)}')
+
+    choice=$(printf '%s' "$model" | menu_action 2>/dev/null) || return 0
+
+    case $choice in
+        toggle-wifi)
+            if [[ $state == enabled ]]; then nmcli radio wifi off; else nmcli radio wifi on; fi
+            sleep 0.4
+            wifi_menu
+            ;;
+        disconnect)
+            if ! error=$(nmcli device disconnect "$device" 2>&1); then
+                wifi_menu "$(short_error "$error")"
+            fi
+            ;;
+        rescan)
+            nmcli device wifi rescan 2>/dev/null || true
+            sleep 1
+            wifi_menu
+            ;;
+        wifi-connect:*)
+            secure=${choice##*:}
+            encoded=${choice#wifi-connect:}
+            encoded=${encoded%:*}
+            ssid=$(decode_value "$encoded") || return 0
+            if nmcli connection up id "$ssid" >/dev/null 2>&1; then
+                return 0
+            fi
+            if [[ $secure == true ]]; then
+                password=$(password_prompt "Connect to $ssid" 2>/dev/null) || return 0
+                [[ -n $password ]] || return 0
+                if ! error=$(nmcli device wifi connect "$ssid" password "$password" 2>&1); then
+                    wifi_menu "Couldn’t connect to $ssid — $(short_error "$error")"
+                fi
+            elif ! error=$(nmcli device wifi connect "$ssid" 2>&1); then
+                wifi_menu "Couldn’t connect to $ssid — $(short_error "$error")"
+            fi
+            ;;
+    esac
+}
+
+bluetooth_menu() {
+    local banner=${1:-}
+    local powered choice mac name connected paired error info battery adapter model
+    local connected_rows available_rows subtitle trailing icon
+
+    powered=$(bluetoothctl show 2>/dev/null | awk '/Powered:/ {print $2; exit}')
+    adapter=$(bluetoothctl show 2>/dev/null | sed -n 's/^[[:space:]]*Alias: //p' | head -n1)
+    connected_rows='[]'
+    available_rows='[]'
+    if [[ $powered == yes ]]; then
+        while IFS=$'\t' read -r mac name; do
+            [[ -n $mac ]] || continue
+            info=$(bluetoothctl info "$mac" 2>/dev/null || true)
+            connected=$(awk '/Connected:/ {print $2; exit}' <<<"$info")
+            paired=$(awk '/Paired:/ {print $2; exit}' <<<"$info")
+            battery=$(sed -n 's/.*Battery Percentage:.*(\([0-9][0-9]*\)).*/\1/p' <<<"$info" | head -n1)
+            if [[ $connected == yes ]]; then
+                subtitle='Connected'
+                [[ -n $battery ]] && subtitle+=" • Battery $battery%"
+                connected_rows=$(append_row "$connected_rows" "bt-device:$mac" '󰂱' "$name" "$subtitle" 'Disconnect' true)
+            else
+                [[ $paired == yes ]] && subtitle='Paired' || subtitle='Available'
+                icon='󰂯'
+                available_rows=$(append_row "$available_rows" "bt-device:$mac" "$icon" "$name" "$subtitle" 'Connect')
+            fi
+        done < <(bluetoothctl devices 2>/dev/null \
+            | sed -n 's/^Device \([^ ]*\) \(.*\)$/\1\t\2/p')
+        if [[ $connected_rows == '[]' && $available_rows == '[]' ]]; then
+            available_rows=$(append_row "$available_rows" '' '󰂯' 'No devices found' 'Scan to discover nearby devices' '' false true)
+        fi
+    fi
+
+    model=$(jq -cn \
+        --arg subtitle "${adapter:-No Bluetooth adapter}" \
+        --arg banner "$banner" \
+        --argjson active "$([[ $powered == yes ]] && printf true || printf false)" \
+        --argjson connected "$connected_rows" \
+        --argjson available "$available_rows" \
+        '{title: "Bluetooth", icon: "󰂯", subtitle: $subtitle,
+          toggle: {title: "Bluetooth", subtitle: (if $active then "Nearby devices can connect" else "Bluetooth is off" end),
+                   icon: "󰂯", active: $active, action: "toggle-bluetooth"},
+          banner: (if $banner == "" then null else {tone: "error", icon: "󰅚", text: $banner} end),
+          sections: (if $active then [{title: "CONNECTED", rows: $connected}, {title: "DEVICES", rows: $available}] else [] end),
+          footer: (if $active then [{title: "Scan for devices", action: "scan", filled: false}] else [] end)}')
+
+    choice=$(printf '%s' "$model" | menu_action 2>/dev/null) || return 0
+
+    case $choice in
+        toggle-bluetooth)
+            if [[ $powered == yes ]]; then bluetoothctl power off >/dev/null; else bluetoothctl power on >/dev/null; fi
+            sleep 0.4
+            bluetooth_menu
+            ;;
+        scan)
+            notice 'Bluetooth scan' 'Scanning for eight seconds…'
+            bluetoothctl --timeout 8 scan on >/dev/null 2>&1 || true
+            bluetooth_menu
+            ;;
+        bt-device:*)
+            mac=${choice#bt-device:}
+            connected=$(bluetoothctl info "$mac" 2>/dev/null | awk '/Connected:/ {print $2; exit}')
+            if [[ $connected == yes ]]; then
+                if ! error=$(bluetoothctl disconnect "$mac" 2>&1); then
+                    bluetooth_menu "$(short_error "$error")"
+                fi
+                return 0
+            fi
+            paired=$(bluetoothctl info "$mac" 2>/dev/null | awk '/Paired:/ {print $2; exit}')
+            if [[ $paired != yes ]]; then
+                if ! error=$(bluetoothctl pair "$mac" 2>&1); then
+                    bluetooth_menu "Pairing failed — $(short_error "$error")"
+                    return 0
+                fi
+                bluetoothctl trust "$mac" >/dev/null 2>&1 || true
+            fi
+            if ! error=$(bluetoothctl connect "$mac" 2>&1); then
+                bluetooth_menu "Connection failed — $(short_error "$error")"
+            fi
+            ;;
+    esac
+}
+
+audio_menu() {
+    local default_sink volume muted mic_muted index choice sink description input_id
+    local -a labels actions
+
+    default_sink=$(pactl get-default-sink)
+    volume=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -oE '[0-9]+%' | head -n1)
+    muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+    mic_muted=$(pactl get-source-mute @DEFAULT_SOURCE@ | awk '{print $2}')
+
+    labels=("󰕾  Volume: $volume" '󰝝  Volume +5%' '󰝞  Volume -5%')
+    actions=(noop volume-up volume-down)
+    if [[ $muted == yes ]]; then
+        labels+=('󰕾  Unmute speakers')
+    else
+        labels+=('󰝟  Mute speakers')
+    fi
+    actions+=(toggle-mute)
+    if [[ $mic_muted == yes ]]; then
+        labels+=('󰍬  Unmute microphone')
+    else
+        labels+=('󰍭  Mute microphone')
+    fi
+    actions+=(toggle-mic)
+
+    while IFS=$'\t' read -r sink description; do
+        [[ -n $sink ]] || continue
+        if [[ $sink == "$default_sink" ]]; then
+            labels+=("󰓃  $description  (active)")
+        else
+            labels+=("󰓃  $description")
+        fi
+        actions+=("sink:$sink")
+    done < <(pactl -f json list sinks | jq -r '.[] | [.name, .description] | @tsv')
+
+    index=$(printf '%s\n' "${labels[@]}" | menu_index 'Audio  ' 2>/dev/null) || return 0
+    [[ $index =~ ^[0-9]+$ ]] || return 0
+    choice=${actions[$index]}
+
+    case $choice in
+        noop) ;;
+        volume-up) pactl set-sink-volume @DEFAULT_SINK@ +5% ;;
+        volume-down) pactl set-sink-volume @DEFAULT_SINK@ -5% ;;
+        toggle-mute) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
+        toggle-mic) pactl set-source-mute @DEFAULT_SOURCE@ toggle ;;
+        sink:*)
+            sink=${choice#sink:}
+            pactl set-default-sink "$sink"
+            while read -r input_id _; do
+                [[ -n $input_id ]] && pactl move-sink-input "$input_id" "$sink"
+            done < <(pactl list short sink-inputs)
+            ;;
+    esac
+}
+
+case ${1:-} in
+    wifi) wifi_menu ;;
+    bluetooth) bluetooth_menu ;;
+    audio) audio_menu ;;
+    *) printf 'usage: %s {wifi|bluetooth|audio}\n' "$0" >&2; exit 2 ;;
+esac

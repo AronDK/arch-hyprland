@@ -1,7 +1,7 @@
 @define-color text            @on_surface;
 @define-color background-alt  alpha(@color1, .4);
-@define-color selected        @outline;
-@define-color hover           alpha(@selected, 1);
+@define-color selected        @primary;
+@define-color hover           @primary_container;
 @define-color urgent          @error;
 
 * {
@@ -200,6 +200,11 @@ progressbar {
   background: @hover;
 }
 
+.widget-buttons-grid>flowbox>flowboxchild>button.toggle:checked {
+  background: @error_container;
+  color: @error;
+}
+
 
   /* Music player */
 .widget-mpris {
@@ -253,4 +258,3 @@ progressbar {
   margin: 6px;
   border-radius: 6px;
 }
-

@@ -19,13 +19,13 @@ window#waybar.empty #window {
 }
 
 tooltip {
-	color: @inverse_surface;
-    background: rgba(0, 0, 0, 0.8);
+	color: @on_surface;
+    background: @surface_container_highest;
     border-radius: 20px;
 }
 
 tooltip label{
-	color: @inverse_surface;
+	color: @on_surface;
 }
 /*-----module groups----*/
 .modules-right {
@@ -186,24 +186,24 @@ tooltip label{
 /*-----Indicators----*/
 #custom-hypridle.notactive,
 #idle_inhibitor.activated {
-	color: #39FF14;
+	color: @primary;
 }
 
 #pulseaudio.muted {
-	color: #cc3436;
+	color: @error;
 }
 #temperature.critical {
-	color: red;
+	color: @error;
 }
 
 @keyframes blink {
 	to {
-		color: #000000;
+		color: @on_error;
 	}
 }
 
 #battery.critical:not(.charging) {
-	color: #f53c3c;
+	color: @error;
 }
 
 #backlight-slider slider,

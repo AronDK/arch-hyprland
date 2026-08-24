@@ -48,10 +48,12 @@ alias vim='nvim'
 alias vi='nvim'
 alias update='sudo pacman -Syu'
 
+export PATH="$HOME/.local/bin:$PATH"
+
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# Keep separate Kitty windows independent while retaining tmux copy mode and
-# pane navigation. The per-Kitty session is removed when its window detaches.
+# Give each local Kitty process its own tmux workspace so separate terminal
+# windows stay independent while retaining pane navigation and copy-mode keys.
 if [[ -n ${KITTY_PID:-} && -z ${TMUX:-} && -z ${SSH_CONNECTION:-} ]]; then
     tmux new-session -A -s "kitty-${KITTY_PID}" \; set-option destroy-unattached on
 fi

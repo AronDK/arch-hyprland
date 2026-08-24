@@ -1,0 +1,5 @@
+/* Runtime fallback. waybar-notification-center rewrites this origin to match
+ * the clicked Waybar icon before opening the panel. */
+blankwindow.open .control-center {
+  transform-origin: 100% 0%;
+}

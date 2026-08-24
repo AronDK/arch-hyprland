@@ -39,6 +39,8 @@
 	"custom/separator#blank",
 	"group/mobo_drawer",
 	"custom/separator#line",  
+	"group/connections",
+	"custom/separator#dot-line",
 	"group/audio",
 	"custom/separator#dot-line",
 	"custom/separator#blank", 

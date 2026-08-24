@@ -39,19 +39,19 @@
 },
 
 "custom/settings": {
-	"format": " ",
-	"on-click": "$HOME/.config/hypr/scripts/Kool_Quick_Settings.sh",
+		"format": "",
+		"on-click": "nwg-look",
 	"tooltip": true,
-	"tooltip-format": "Launch KooL Hyprland Settings Menu",
+	"tooltip-format": "Appearance settings",
 },
 
 "custom/cycle_wall": {
 	"format": " ",
-	"on-click": "$HOME/.config/hypr/UserScripts/WallpaperSelect.sh",
-	"on-click-right": "$HOME/.config/hypr/UserScripts/WallpaperRandom.sh",
+	"on-click": "$HOME/.config/hypr/scripts/wppicker.sh",
+	"on-click-right": "$HOME/.config/hypr/scripts/wppicker.sh --random",
 	"on-click-middle": "$HOME/.config/hypr/scripts/WaybarStyles.sh",
 	"tooltip": true,
-	"tooltip-format": "Left Click: Wallpaper Menu\nMiddle Click: Random wallpaper\nRight Click: Waybar Styles Menu",
+	"tooltip-format": "Left Click: Wallpaper Menu\nMiddle Click: Waybar Styles Menu\nRight Click: Random wallpaper",
 },
 
 "custom/hint": {
@@ -92,7 +92,7 @@
 	"format": "󰔎 ",
 	"on-click": "$HOME/.config/hypr/scripts/DarkLight.sh",
 	"on-click-right": "$HOME/.config/hypr/scripts/WaybarStyles.sh",
-	"on-click-middle": "$HOME/.config/hypr/UserScripts/WallpaperSelect.sh",
+	"on-click-middle": "$HOME/.config/hypr/scripts/wppicker.sh",
 	"tooltip": true,
 	"tooltip-format": "Left Click: Switch Dark-Light Themes\nMiddle Click: Wallpaper Menu\nRight Click: Waybar Styles Menu",
 },
@@ -107,7 +107,7 @@
 "custom/menu": {
 	"format": "  ",
 	"on-click": "pkill rofi || rofi -show drun -modi run,drun,filebrowser,window",
-	"on-click-middle": "$HOME/.config/hypr/UserScripts/WallpaperSelect.sh",
+	"on-click-middle": "$HOME/.config/hypr/scripts/wppicker.sh",
 	"on-click-right": "$HOME/.config/hypr/scripts/WaybarLayout.sh",
 	"tooltip": true,
 	"tooltip-format": "Left Click: Rofi Menu\nMiddle Click: Wallpaper Menu\nRight Click: Waybar Layout Menu",
@@ -159,19 +159,19 @@
 	"tooltip-format": "Left Click: Launch Notification Center\nRight Click: Do not Disturb",
 	"format": "{} {icon} ",
 	"format-icons": {
-		"notification": "<span foreground='red'><sup></sup></span>",
+		"notification": "<sup></sup>",
 		"none": "",
-		"dnd-notification": "<span foreground='red'><sup></sup></span>",
+		"dnd-notification": "<sup></sup>",
 		"dnd-none": "",
-		"inhibited-notification": "<span foreground='red'><sup></sup></span>",
+		"inhibited-notification": "<sup></sup>",
 		"inhibited-none": "",
-		"dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+		"dnd-inhibited-notification": "<sup></sup>",
 		"dnd-inhibited-none": ""
 	},
 	"return-type": "json",
 	"exec-if": "which swaync-client",
 	"exec": "swaync-client -swb",
-	"on-click": "sleep 0.1 && swaync-client -t -sw",
+	"on-click": "$HOME/.local/bin/waybar-notification-center",
 	"on-click-right": "swaync-client -d -sw",
 	"escape": true,
 },

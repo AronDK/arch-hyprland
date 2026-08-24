@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -u
+
+on_external_power() {
+    local supply type online
+    for supply in /sys/class/power_supply/*; do
+        [[ -r $supply/type && -r $supply/online ]] || continue
+        type=$(<"$supply/type")
+        online=$(<"$supply/online")
+        if [[ $online == 1 && ( $type == Mains || $type == USB || $type == USB_C ) ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+on_external_power && exit 0
+
+case ${1:-} in
+    lock) pgrep -x hyprlock >/dev/null || hyprlock ;;
+    dpms-off) hyprctl dispatch dpms off ;;
+    suspend) systemctl suspend ;;
+    *) exit 2 ;;
+esac

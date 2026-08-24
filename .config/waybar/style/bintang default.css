@@ -22,21 +22,21 @@ window#waybar.empty #window {
 }
 
 tooltip {
-	color: @inverse_surface;
-    background: rgba(0, 0, 0, 0.8);
+	color: @on_surface;
+    background: @surface_container_highest;
     border-radius: 20px;
 }
 
 tooltip label{
-	color: @inverse_surface;
+	color: @on_surface;
 }
 /*-----module groups----*/
 .modules-right {
-	background-color: rgba(0,0,0,0.5);
-	color: @secondary;
+	background-color: alpha(@surface_container, .88);
+	color: @primary;
 	border-bottom: 0px;
 	border-style: solid;
-	border-color: white;
+	border-color: @primary;
 	border-radius: 20px;
 	padding-top: 2px;
 	padding-bottom: 2px;
@@ -44,11 +44,11 @@ tooltip label{
 	padding-left: 4px;
 }
 .modules-left {
-	background-color: rgba(0,0,0,0.5);
-	color: @secondary;
+	background-color: alpha(@surface_container, .88);
+	color: @primary;
 	border-bottom: 0px;
 	border-style: solid;
-	border-color: white;
+	border-color: @primary;
 	border-radius: 20px;
 	padding-top: 2px;
 	padding-bottom: 2px;
@@ -56,8 +56,9 @@ tooltip label{
 	padding-left: 4px;
 }
 /*-----modules indv----*/
-#taskbar button {
-	color: @outline;
+#taskbar button,
+#workspaces button {
+	color: @on_surface_variant;
     box-shadow: none;
 	text-shadow: none;
     padding: 0px;
@@ -67,8 +68,9 @@ tooltip label{
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
 }
-#taskbar button:hover {
-    color: @on_secondary_fixed_variant;
+#taskbar button:hover,
+#workspaces button:hover {
+	color: @primary;
     border-radius: 20px;
  	padding-left: 2px;
     padding-right: 2px;
@@ -76,12 +78,22 @@ tooltip label{
     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
 }
 
-#taskbar button.active {
-	color: @inverse_surface;
+#taskbar button.active,
+#workspaces button.active {
+	color: @primary_fixed;
     padding-left: 8px;
     padding-right: 8px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#workspaces button.urgent {
+    color: @on_secondary;
+    border-radius: 10px;
+}
+
+#workspaces button.persistent {
+	border-radius: 10px;
 }
 
 #backlight,
@@ -105,6 +117,7 @@ tooltip label{
 #tray,
 #window,
 #wireplumber,
+#workspaces,
 #custom-backlight,
 #custom-browser,
 #custom-cava_mviz,
@@ -147,24 +160,24 @@ tooltip label{
 /*-----Indicators----*/
 #custom-hypridle.notactive,
 #idle_inhibitor.activated {
-	color: #39FF14;
+	color: @primary;
 }
 
 #pulseaudio.muted {
-	color: #cc3436;
+	color: @error;
 }
 #temperature.critical {
-	color: red;
+	color: @error;
 }
 
 @keyframes blink {
 	to {
-		color: #000000;
+		color: @on_error;
 	}
 }
 
 #battery.critical:not(.charging) {
-	color: #f53c3c;
+	color: @error;
 }
 
 #backlight-slider slider,

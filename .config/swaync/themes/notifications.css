@@ -1,7 +1,7 @@
 @define-color text            @inverse_surface;
 @define-color background-alt  @background;
-@define-color selected        @on_secondary;
-@define-color hover           @on_secondary_fixed_variant;
+@define-color selected        @primary;
+@define-color hover           @primary_container;
 @define-color urgent          @on_secondary_fixed;
 
 * {
@@ -109,4 +109,3 @@
 .notification.normal progress {
   background-color: @hover;
 }
-

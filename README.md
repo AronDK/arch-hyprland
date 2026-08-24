@@ -3,7 +3,8 @@
 A portable Hyprland setup built from several community configurations and
 adapted for current Hyprland releases. Matugen supplies application colours,
 `awww` handles smooth wallpaper transitions, and the default Waybar layouts
-use a single horizontal row without a workspace widget.
+use a single horizontal row without a workspace widget. Waybar and SwayNC use
+wallpaper-derived Material 3 surfaces, controls, shapes, and motion.
 
 The repository intentionally avoids host-specific monitor connector names,
 display model strings, usernames, absolute home paths, and timezones.
@@ -11,7 +12,12 @@ display model strings, usernames, absolute home paths, and timezones.
 ## Highlights
 
 - Smooth `awww` wallpaper changes without a compositor or Waybar restart
+- One wallpaper-to-Material-3 pipeline for Hyprland, Waybar, SwayNC, Kitty,
+  Rofi, Cava, and other Matugen consumers
+- Material 3 Wi-Fi, Bluetooth, and audio popups positioned from Waybar
+- SwayNC control-center motion that expands from its clicked Waybar icon
 - Scrollable Rofi wallpaper picker with image icons
+- Random wallpaper selection from Waybar's right-click action
 - Compact Waybar layouts with no persistent or empty workspace container
 - Slightly translucent Kitty background without compounded window opacity
 - One private tmux session per Kitty window, with Vi copy mode and `hjkl` panes
@@ -22,9 +28,11 @@ display model strings, usernames, absolute home paths, and timezones.
 ## Requirements
 
 Core components include Hyprland, Waybar, Rofi, Kitty, Zsh, tmux, Starship,
-Matugen, `awww`, SwayNC, Hyprlock, Hypridle, and a Nerd Font. The scripts also
+Matugen, `awww`, SwayNC, Hyprlock, Hypridle, and a Nerd Font. The popup controls
+require Python 3, PyGObject, GTK 3, and GTK Layer Shell. The scripts also
 use `jq`, `find`, `wl-clipboard`, `cliphist`, `grim`, `slurp`, `swappy`,
-`playerctl`, `brightnessctl`, `pamixer`, `NetworkManager`, Blueman, and udiskie.
+`playerctl`, `brightnessctl`, `pamixer`, `pactl`, `NetworkManager`, BlueZ,
+`flock`, `gdbus`, Blueman, and udiskie.
 
 The shell configuration expects `zsh-autosuggestions`,
 `zsh-syntax-highlighting`, `zoxide`, `fzf`, `eza`, `bat`, `ripgrep`, `fd`, and
@@ -35,7 +43,7 @@ are used.
 
 These files mirror paths below `$HOME`. Back up any existing dotfiles, review
 the configuration, then copy or symlink the files you want into place. Ensure
-the files under `.config/hypr/scripts/` remain executable.
+the files under `.config/hypr/scripts/` and `.local/bin/` remain executable.
 
 Choose a Waybar layout and style after installation:
 
@@ -46,7 +54,10 @@ ln -sfn "$HOME/.config/waybar/style/bintang default.css" "$HOME/.config/waybar/s
 
 Wallpapers are read from `~/Pictures/wallpapers`. `Super+W` opens the picker;
 the selected image is linked to `~/.config/hypr/current_wallpaper` and restored
-at the next login.
+at the next login. Matugen regenerates the live application palettes after
+each selection; the committed generated files are only installation defaults.
+`MATUGEN_SCHEME_TYPE` and `MATUGEN_COLOR_STRATEGY` can override the default
+`scheme-vibrant` and `dominant` choices.
 
 ## Local configuration
 
